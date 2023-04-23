@@ -20,4 +20,4 @@ Analyse customer review data to uncover findings for British Airways.
 *Preparing a powerpoint representation to our insights and analysis.
 
 
-Forage
+[Forage] (https://www.theforage.com/virtual-internships/NjynCWzGSaWXQCxSX?ref=BYTdYfnqf6Dmpghwg)
