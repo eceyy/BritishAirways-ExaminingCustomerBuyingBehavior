@@ -15,3 +15,9 @@ Analyse customer review data to uncover findings for British Airways.
 *  Jupyter Notebook
 *  Powerpoint
 
+# Task 2
+*Building a predictive model to understand factors that influence buying behaviour.
+*Preparing a powerpoint representation to our insights and analysis.
+
+
+Forage
