@@ -70,7 +70,7 @@ Build a machine learning model to predict whether a user will complete a flight 
 <details>
 <summary><strong>Task 2 - Important Features</strong></summary>
 
-![Confusion Matrix](https://user-images.githubusercontent.com/example/confusion_matrix.png)
+![Important Features](https://github.com/eceyy/British-Airways-Data-Science-Virtual-Intership/blob/main/Important%20Features.png)
 
 </details>
 
