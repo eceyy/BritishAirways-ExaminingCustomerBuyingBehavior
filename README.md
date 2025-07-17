@@ -78,9 +78,7 @@ Predict whether a customer will complete a flight booking.
 
 ---
 
-## 🚀 Installation
-
-To run the project locally, follow the steps below:
+## ⚙️ Installation
 
 ```bash
 # Install the required packages
@@ -90,7 +88,7 @@ pip install -r requirements.txt
 jupyter notebook
 
 
---
+---
 
 ## 👩‍💻 Author
 
@@ -100,8 +98,3 @@ Participant, British Airways Data Science Virtual Internship
 
 
 
-## Author
-
-**Ece Yavuzyilmaz**  
-Participant of the British Airways Data Science Virtual Internship  
-🔗 [GitHub Profile](https://github.com/eceyy)
