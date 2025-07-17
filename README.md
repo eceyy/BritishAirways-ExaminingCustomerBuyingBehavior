@@ -96,3 +96,10 @@ pip install -r requirements.txt
 
 # Launch Jupyter Notebook
 jupyter notebook
+
+
+## Author
+
+**Ece Yavuzyilmaz**  
+Participant of the British Airways Data Science Virtual Internship  
+🔗 [GitHub Profile](https://github.com/eceyy)
