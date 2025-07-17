@@ -78,24 +78,26 @@ Predict whether a customer will complete a flight booking.
 
 ---
 
-## 🔧 Libraries Used
+## 🚀 Installation
 
-- **Web Scraping:** `requests`, `BeautifulSoup`
-- **NLP:** `nltk`, `vaderSentiment`, `TextBlob`, `wordcloud`
-- **Visualization:** `matplotlib`, `seaborn`
-- **Machine Learning:** `scikit-learn`, `RandomForestClassifier`
-- **Utilities:** `pycountry_convert`, `numpy`, `pandas`
-
----
-
-## 🚀 Setup & Execution
+To run the project locally, follow the steps below:
 
 ```bash
-# Install required packages
+# Install the required packages
 pip install -r requirements.txt
 
-# Launch Jupyter Notebook
+# Launch the Jupyter Notebook interface
 jupyter notebook
+
+
+--
+
+## 👩‍💻 Author
+
+**Ece Yavuzyilmaz**  
+Participant, British Airways Data Science Virtual Internship  
+🔗 [GitHub Profile](https://github.com/eceyy)
+
 
 
 ## Author
