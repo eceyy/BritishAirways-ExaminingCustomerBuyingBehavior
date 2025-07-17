@@ -58,6 +58,25 @@ Build a machine learning model to predict whether a user will complete a flight 
 
 ---
 
+## 📊 Sample Visualizations
+
+<details>
+<summary><strong>Task 1 - Word Cloud</strong></summary>
+
+![Word Cloud](https://user-images.githubusercontent.com/example/wordcloud.png)
+
+</details>
+
+<details>
+<summary><strong>Task 2 - Important Features</strong></summary>
+
+![Confusion Matrix](https://user-images.githubusercontent.com/example/confusion_matrix.png)
+
+</details>
+
+---
+
+
 ## 📂 Directory Structure
 
 ```plaintext
