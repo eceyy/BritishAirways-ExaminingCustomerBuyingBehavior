@@ -84,7 +84,6 @@ Build a machine learning model to predict whether a user will complete a flight 
 │   └── Task1_british_airways_web_scraping.ipynb
 ├── Task 2/
 │   └── Task2_Predictive_modeling_of_customer_bookings.ipynb
-├── requirements.txt
 └── README.md
 ```
 
