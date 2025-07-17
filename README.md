@@ -63,7 +63,7 @@ Build a machine learning model to predict whether a user will complete a flight 
 <details>
 <summary><strong>Task 1 - Word Cloud</strong></summary>
 
-![Word Cloud](https://user-images.githubusercontent.com/example/wordcloud.png)
+![Word Cloud](https://github.com/eceyy/British-Airways-Data-Science-Virtual-Intership/blob/main/word%20cloud.png)
 
 </details>
 
