@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Airways Customer Review Sentiment Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .slide:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 4em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 2.8em;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffffff;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e0e7ff;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 50px;
+            opacity: 0.9;
+            color: #cbd5e1;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .methodology-step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 16px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .methodology-step:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(8px);
+            border-left-color: #764ba2;
+        }
+
+        .code-snippet {
+            background: #1e293b;
+            padding: 24px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 20px 0;
+            border: 1px solid #334155;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 32px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-card:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .metric-value {
+            font-size: 3.2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-label {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #e0e7ff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 2s ease;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 8px;
+            color: #cbd5e1;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.9em;
+        }
+
+        .comparison-table td {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .sentiment-positive { color: #34d399; }
+        .sentiment-negative { color: #f87171; }
+        .sentiment-neutral { color: #fbbf24; }
+
+        .word-cloud-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .word-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .word-item:hover {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .word-text {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .word-frequency {
+            font-size: 1.2em;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .insights-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insights-list li {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            margin: 16px 0;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .insights-list li:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            gap: 16px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        .icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .chart-placeholder {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide.active {
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            h2 {
+                font-size: 2em;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide active">
+            <h1>British Airways Customer Sentiment Analysis</h1>
+            <div class="subtitle">Comprehensive Web Scraping and Natural Language Processing Study</div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">1,000</div>
+                    <div class="metric-label">Customer Reviews</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2</div>
+                    <div class="metric-label">NLP Models</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">10</div>
+                    <div class="metric-label">Pages Scraped</div>
+                </div>
+            </div>
+            <div class="subtitle">Data-Driven Insights for Customer Experience Enhancement</div>
+        </div>
+
+        <!-- Slide 2: Executive Summary -->
+        <div class="slide">
+            <h2>📊 Executive Summary</h2>
+            <div class="content">
+                <div class="two-column">
+                    <div>
+                        <h3><span class="icon">🎯</span>Project Objectives</h3>
+                        <ul class="insights-list">
+                            <li>Extract and analyze 1,000 customer reviews from Skytrax</li>
+                            <li>Implement dual sentiment analysis methodology</li>
+                            <li>Generate actionable insights for service improvement</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3><span class="icon">🔑</span>Key Findings</h3>
+                        <ul class="insights-list">
+                            <li><strong>61-67% Positive Sentiment:</strong> Overall customer satisfaction</li>
+                            <li><strong>Service Quality Focus:</strong> Key discussion topics identified</li>
+                            <li><strong>Model Consensus:</strong> Consistent results across methodologies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Methodology Overview -->
+        <div class="slide">
+            <h2>🔬 Research Methodology</h2>
+            <div class="content">
+                <h3><span class="icon">🛠️</span>Technical Stack</h3>
+                <div class="methodology-step">
+                    <strong>Data Collection:</strong> Python, BeautifulSoup, Requests
+                </div>
+                <div class="methodology-step">
+                    <strong>Text Processing:</strong> NLTK, Regular Expressions, WordNet Lemmatizer
+                </div>
+                <div class="methodology-step">
+                    <strong>Sentiment Analysis:</strong> VADER Sentiment Analyzer, TextBlob
+                </div>
+                <div class="methodology-step">
+                    <strong>Visualization:</strong> Matplotlib, Seaborn, WordCloud
+                </div>
+                
+                <h3><span class="icon">📈</span>Analysis Pipeline</h3>
+                <div class="chart-placeholder">
+                    Data Collection → Text Preprocessing → Sentiment Analysis → Statistical Analysis → Visualization
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Data Collection Process -->
+        <div class="slide">
+            <h2>🌐 Data Acquisition Strategy</h2>
+            <div class="content">
+                <div class="methodology-step">
+                    <h3><span class="icon">🎯</span>Target Source</h3>
+                    <p><strong>Platform:</strong> Skytrax (airlinequality.com)<br>
+                    <strong>Focus:</strong> British Airways customer reviews<br>
+                    <strong>Scope:</strong> Recent customer feedback and experiences</p>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">⚙️</span>Scraping Configuration</h3>
+                    <div class="code-snippet">
+base_url = "https://www.airlinequality.com/airline-reviews/british-airways"
+pages = 10
+page_size = 100
+total_reviews_collected = 1000
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">📊</span>Collection Results</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 100%;"></div>
+                    </div>
+                    <div class="progress-text">✅ Successfully collected 1,000 customer reviews</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Data Preprocessing -->
+        <div class="slide">
+            <h2>🧹 Data Preprocessing Pipeline</h2>
+            <div class="content">
+                <div class="methodology-step">
+                    <h3><span class="icon">🔧</span>Text Cleaning Process</h3>
+                    <p><strong>Step 1:</strong> Remove verification tags (✅ Trip Verified, Not Verified)<br>
+                    <strong>Step 2:</strong> Extract meaningful content using delimiter split<br>
+                    <strong>Step 3:</strong> Remove special characters and numerical data</p>
+                    <div class="code-snippet">
+# Clean verification tags
+df.reviews = df.reviews.str.split('|', expand=True)[1]
+
+# Remove special characters
+def clean(text):
+    text = re.sub('[^A-Za-z]+', ' ', str(text))
+    return text
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">📝</span>Natural Language Processing</h3>
+                    <p><strong>Normalization:</strong> Convert to lowercase<br>
+                    <strong>Stop Words Removal:</strong> NLTK English stopwords<br>
+                    <strong>Lemmatization:</strong> WordNet lemmatizer for root form extraction<br>
+                    <strong>Tokenization:</strong> POS tagging for linguistic analysis</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Sentiment Analysis Results -->
+        <div class="slide">
+            <h2>📊 Sentiment Analysis Results</h2>
+            <div class="content">
+                <h3><span class="icon">🔍</span>Comparative Model Analysis</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Positive</th>
+                            <th>Negative</th>
+                            <th>Neutral</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>VADER Analyzer</strong></td>
+                            <td class="sentiment-positive">614 (61.4%)</td>
+                            <td class="sentiment-negative">367 (36.7%)</td>
+                            <td class="sentiment-neutral">19 (1.9%)</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TextBlob</strong></td>
+                            <td class="sentiment-positive">673 (67.3%)</td>
+                            <td class="sentiment-negative">327 (32.7%)</td>
+                            <td class="sentiment-neutral">0 (0%)</td>
+                            <td>1,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">📈</span>Key Performance Indicators</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value sentiment-positive">64.4%</div>
+                            <div class="metric-label">Average Positive</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value sentiment-negative">34.7%</div>
+                            <div class="metric-label">Average Negative</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Word Frequency Analysis -->
+        <div class="slide">
+            <h2>🔤 Lexical Analysis Results</h2>
+            <div class="content">
+                <h3><span class="icon">📊</span>Most Frequent Terms (Excluding Stop Words)</h3>
+                <div class="word-cloud-grid">
+                    <div class="word-item">
+                        <div class="word-text">flight</div>
+                        <div class="word-frequency">2,043</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">ba</div>
+                        <div class="word-frequency">1,192</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">seat</div>
+                        <div class="word-frequency">948</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">service</div>
+                        <div class="word-frequency">755</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">london</div>
+                        <div class="word-frequency">640</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">time</div>
+                        <div class="word-frequency">601</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">crew</div>
+                        <div class="word-frequency">499</div>
+                    </div>
+                    <div class="word-item">
+                        <div class="word-text">food</div>
+                        <div class="word-frequency">496</div>
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">🎯</span>Thematic Analysis</h3>
+                    <p><strong>Core Service Elements:</strong> Flight operations, seating, service quality<br>
+                    <strong>Geographic Focus:</strong> London hub operations prominently mentioned<br>
+                    <strong>Operational Aspects:</strong> Time management and crew performance highlighted</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Technical Implementation -->
+        <div class="slide">
+            <h2>⚙️ Technical Architecture</h2>
+            <div class="content">
+                <div class="two-column">
+                    <div>
+                        <h3><span class="icon">🔬</span>VADER Analysis Framework</h3>
+                        <div class="methodology-step">
+                            <strong>Scoring Methodology:</strong>
+                            <div class="code-snippet">
+Positive: compound ≥ 0.05
+Negative: compound ≤ -0.05
+Neutral: -0.05 < compound < 0.05
+                            </div>
+                            <p><strong>Advantages:</strong> Social media optimized, handles negations and intensifiers</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3><span class="icon">📊</span>TextBlob Analysis</h3>
+                        <div class="methodology-step">
+                            <strong>Polarity Assessment:</strong>
+                            <div class="code-snippet">
+Positive: polarity > 0
+Negative: polarity ≤ 0
+Range: [-1, 1]
+                            </div>
+                            <p><strong>Advantages:</strong> Simple implementation, general text analysis suitable</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">🎨</span>Visualization Components</h3>
+                    <p><strong>Word Clouds:</strong> Overall, sentiment-specific visualizations<br>
+                    <strong>Statistical Charts:</strong> Pie charts, bar graphs, frequency distributions<br>
+                    <strong>Comparative Analysis:</strong> Model performance comparison tables</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Business Intelligence Insights -->
+        <div class="slide">
+            <h2>💼 Strategic Business Insights</h2>
+            <div class="content">
+                <div class="two-column">
+                    <div>
+                        <h3><span class="icon">✅</span>Competitive Advantages</h3>
+                        <ul class="insights-list">
+                            <li><strong>Customer Satisfaction:</strong> 61-67% positive sentiment indicates strong market position</li>
+                            <li><strong>Service Recognition:</strong> "Good," "crew," and "service" frequently mentioned positively</li>
+                            <li><strong>Operational Excellence:</strong> London hub operations well-regarded</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3><span class="icon">⚠️</span>Improvement Opportunities</h3>
+                        <ul class="insights-list">
+                            <li><strong>Seat Comfort:</strong> High frequency mentions suggest optimization potential</li>
+                            <li><strong>Time Management:</strong> Scheduling and delay concerns identified</li>
+                            <li><strong>Customer Service:</strong> 33-37% negative sentiment requires attention</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">🎯</span>Recommended Action Items</h3>
+                    <p><strong>Immediate:</strong> Seat comfort assessment and upgrade program<br>
+                    <strong>Short-term:</strong> Customer service training and response time optimization<br>
+                    <strong>Long-term:</strong> Real-time sentiment monitoring system implementation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Conclusions and Future Directions -->
+        <div class="slide">
+            <h2>🎯 Conclusions & Future Roadmap</h2>
+            <div class="content">
+                <div class="methodology-step">
+                    <h3><span class="icon">✅</span>Project Achievements</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">✓</div>
+                            <div class="metric-label">Data Collection Success</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">✓</div>
+                            <div class="metric-label">Dual Model Validation</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">✓</div>
+                            <div class="metric-label">Actionable Insights</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="two-column">
+                    <div>
+                        <h3><span class="icon">🚀</span>Future Enhancements</h3>
+                        <ul class="insights-list">
+                            <li>Aspect-based sentiment analysis</li>
+                            <li>Temporal trend analysis</li>
+                            <li>Competitive benchmarking</li>
+                            <li>Real-time monitoring dashboard</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3><span class="icon">📊</span>Success Metrics</h3>
+                        <ul class="insights-list">
+                            <li>1,000 reviews successfully analyzed</li>
+                            <li>64.4% average positive sentiment</li>
+                            <li>Comprehensive lexical analysis completed</li>
+                            <li>Strategic recommendations delivered</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="methodology-step">
+                    <h3><span class="icon">💡</span>Business Impact</h3>
+                    <p>This analysis provides British Airways with data-driven insights to enhance customer experience, optimize service delivery, and maintain competitive advantage in the aviation industry through evidence-based decision making.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-button" onclick="previousSlide()">← Previous</button>
+        <button class="nav-button" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                slide.style.display = 'none';
+            });
+            
+            if (n >= totalSlides) currentSlideIndex = 0;
+            if (n < 0) currentSlideIndex = totalSlides - 1;
+            
+            slides[currentSlideIndex].style.display = 'flex';
+            slides[currentSlideIndex].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+        }
+        
+        function nextSlide() {
+            currentSlideIndex++;
+            showSlide(currentSlideIndex);
+        }
+        
+        function previousSlide() {
+            currentSlideIndex--;
+            showSlide(currentSlideIndex);
+        }
+        
+        // Initialize presentation
+        showSlide(0);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                case 'PageDown':
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                case 'PageUp':
+                    previousSlide();
+                    break;
+                case 'Home':
+                    currentSlideIndex = 0;
+                    showSlide(currentSlideIndex);
+                    break;
+                case 'End':
+                    currentSlideIndex = totalSlides - 1;
+                    showSlide(currentSlideIndex);
+                    break;
+            }
+        });
+        
+        // Initialize progress bars with animation
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-bar');
+                progressBars.forEach(bar => {
+                    if (!bar.style.width) {
+                        bar.style.width = '100%';
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
