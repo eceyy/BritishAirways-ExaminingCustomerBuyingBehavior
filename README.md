@@ -1,4 +1,4 @@
-# ✈️ British Airways Data Science Virtual Internship
+# British Airways Data Science Virtual Internship
 
 This repository includes two data science tasks completed as part of the **British Airways Data Science Virtual Internship** on the [Forage](https://www.theforage.com/) platform:
 
