@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Booking Prediction Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            color: #1f2937;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .presentation-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            margin-bottom: 40px;
+            padding: 50px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideIn 0.8s ease forwards;
+            border-top: 6px solid #dc2626;
+        }
+
+        .slide:nth-child(1) { animation-delay: 0.2s; }
+        .slide:nth-child(2) { animation-delay: 0.4s; }
+        .slide:nth-child(3) { animation-delay: 0.6s; }
+        .slide:nth-child(4) { animation-delay: 0.8s; }
+        .slide:nth-child(5) { animation-delay: 1.0s; }
+        .slide:nth-child(6) { animation-delay: 1.2s; }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e3a8a;
+            position: relative;
+        }
+
+        .slide-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: #fbbf24;
+            border-radius: 2px;
+        }
+
+        .slide-subtitle {
+            font-size: 1.4rem;
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin: 40px 0;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .chart-container-large {
+            height: 550px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 16px;
+            text-align: center;
+            transform: scale(1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: #dc2626;
+            border-radius: 0 0 0 40px;
+        }
+
+        .metric-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(30, 58, 138, 0.3);
+        }
+
+        .metric-value {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #dc2626;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .insight-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 16px;
+            border-left: 6px solid #dc2626;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .insight-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        .insight-text {
+            color: #475569;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #1e3a8a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .feature-name {
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 1rem;
+        }
+
+        .feature-score {
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .conclusion-section {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .conclusion-section::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: #dc2626;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .conclusion-title {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: #dc2626;
+            position: relative;
+            z-index: 2;
+        }
+
+        .conclusion-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+        }
+
+        .data-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .data-stat {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .data-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .data-stat-label {
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .model-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .model-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .model-card.best {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+        }
+
+        .model-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .model-accuracy {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .navigation {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .nav-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #dc2626;
+            transform: scale(1.4);
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+            
+            .slide-title {
+                font-size: 2.2rem;
+            }
+            
+            .chart-container {
+                height: 350px;
+                padding: 15px;
+            }
+
+            .model-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .ba-logo {
+                min-width: 280px;
+                width: 90%;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+    </div>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Executive Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Customer Booking Prediction Model</h1>
+            <p class="slide-subtitle">Machine Learning Analysis for Airline Industry</p>
+            
+            <div class="data-overview">
+                <div class="data-stat">
+                    <div class="data-stat-value">50,000</div>
+                    <div class="data-stat-label">Total Records</div>
+                </div>
+                <div class="data-stat">
+                    <div class="data-stat-value">14</div>
+                    <div class="data-stat-label">Features</div>
+                </div>
+                <div class="data-stat">
+                    <div class="data-stat-value">68.6%</div>
+                    <div class="data-stat-label">Incomplete Bookings</div>
+                </div>
+                <div class="data-stat">
+                    <div class="data-stat-value">31.4%</div>
+                    <div class="data-stat-label">Completed Bookings</div>
+                </div>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">Business Challenge</div>
+                    <div class="insight-text">
+                        Predicting customer booking completion to optimize conversion rates and reduce abandonment in the airline booking process.
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Dataset Overview</div>
+                    <div class="insight-text">
+                        Comprehensive dataset including passenger preferences, flight details, booking patterns, and completion status across multiple continents.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Model Performance Comparison -->
+        <div class="slide">
+            <h2 class="slide-title">Model Performance Analysis</h2>
+            <p class="slide-subtitle">Random Forest Classifier Results</p>
+            
+            <div class="model-comparison">
+                <div class="model-card">
+                    <div class="model-title">All Features Model</div>
+                    <div class="model-accuracy">88.05%</div>
+                    <div class="insight-text">
+                        <strong>Features:</strong> 20 variables<br>
+                        <strong>AUC:</strong> 0.818<br>
+                        <strong>Training Accuracy:</strong> 99.98%
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div class="model-title">Top 4 Features Model</div>
+                    <div class="model-accuracy">85.73%</div>
+                    <div class="insight-text">
+                        <strong>Features:</strong> booking_origin, length_of_stay, flight_duration, purchase_lead<br>
+                        <strong>Training Accuracy:</strong> 96.92%
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">Model Selection</div>
+                    <div class="insight-text">
+                        The all-features model demonstrates superior performance with 88.05% accuracy and strong generalization capability.
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Overfitting Analysis</div>
+                    <div class="insight-text">
+                        High training accuracy (99.98%) vs test accuracy (88.05%) suggests some overfitting, but performance remains robust.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: ROC Curve Analysis -->
+        <div class="slide">
+            <h2 class="slide-title">ROC Curve Analysis</h2>
+            <p class="slide-subtitle">Model Classification Performance</p>
+            
+            <div class="chart-container chart-container-large">
+                <canvas id="rocChart"></canvas>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.818</div>
+                    <div class="metric-label">AUC Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">88.05%</div>
+                    <div class="metric-label">Test Accuracy</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">Good</div>
+                    <div class="metric-label">Predictive Power</div>
+                </div>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">ROC Interpretation</div>
+                    <div class="insight-text">
+                        The ROC curve shows the trade-off between sensitivity (True Positive Rate) and specificity (1 - False Positive Rate) for different threshold values.
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Performance Evaluation</div>
+                    <div class="insight-text">
+                        AUC = 0.818 indicates good classifier performance. Values closer to 1.0 represent better classification ability than random guessing.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Feature Importance Analysis -->
+        <div class="slide">
+            <h2 class="slide-title">Feature Importance Ranking</h2>
+            <p class="slide-subtitle">Key Drivers of Booking Completion</p>
+            
+            <div class="chart-container chart-container-large">
+                <canvas id="featureChart"></canvas>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">Top Predictors</div>
+                    <div class="insight-text">
+                        Purchase lead time (15.1%), flight duration (14.8%), and length of stay (13.6%) are the strongest predictors of booking completion.
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Customer Behavior Insights</div>
+                    <div class="insight-text">
+                        Passenger preferences for seats, baggage, and meals significantly influence booking completion decisions.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Top Features Deep Dive -->
+        <div class="slide">
+            <h2 class="slide-title">Critical Success Factors</h2>
+            <p class="slide-subtitle">Detailed Analysis of Most Influential Variables</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-name">Purchase Lead Time</span>
+                    <span class="feature-score">15.14%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Flight Duration</span>
+                    <span class="feature-score">14.75%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Length of Stay</span>
+                    <span class="feature-score">13.56%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Preferred Seat Request</span>
+                    <span class="feature-score">11.27%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Flight Hour</span>
+                    <span class="feature-score">9.41%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Extra Baggage Request</span>
+                    <span class="feature-score">9.19%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">In-flight Meals</span>
+                    <span class="feature-score">7.42%</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-name">Number of Passengers</span>
+                    <span class="feature-score">6.21%</span>
+                </div>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">Planning Behavior</div>
+                    <div class="insight-text">
+                        Early booking patterns and trip duration planning are critical indicators of customer commitment to complete purchases.
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Service Value Perception</div>
+                    <div class="insight-text">
+                        Customers requesting premium services (preferred seats, extra baggage, meals) show higher booking completion rates.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Business Recommendations -->
+        <div class="slide">
+            <div class="conclusion-section">
+                <h2 class="conclusion-title">Strategic Recommendations</h2>
+                <div class="conclusion-text">
+                    <p><strong>Model Implementation:</strong> Deploy the Random Forest model with 88.05% accuracy to identify high-risk booking abandonment cases in real-time.</p>
+                    
+                    <p><strong>Customer Segmentation:</strong> Focus retention efforts on customers with short purchase lead times and basic service preferences, as they show higher abandonment risk.</p>
+                    
+                    <p><strong>Revenue Optimization:</strong> Implement targeted interventions for bookings with specific flight duration and timing patterns to maximize completion rates.</p>
+                    
+                    <p><strong>Operational Excellence:</strong> Leverage feature importance insights to optimize booking flow and reduce friction points in the customer journey.</p>
+                    
+                    <p><strong>Next Steps:</strong> A/B test intervention strategies, implement real-time scoring, and continuously monitor model performance with new data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ROC Curve Chart - Based on your React code
+        const rocCtx = document.getElementById('rocChart').getContext('2d');
+        
+        // Generate ROC curve data points exactly matching your React code
+        const generateROCData = () => {
+            const rocData = [];
+            const diagonalData = [];
+            
+            for (let i = 0; i <= 100; i++) {
+                const fpr = i / 100; // False Positive Rate
+                
+                // Create a curve that matches the shape in your React code
+                let tpr;
+                if (fpr <= 0.1) {
+                    tpr = fpr * 6.5; // Steep initial rise
+                } else if (fpr <= 0.3) {
+                    tpr = 0.65 + (fpr - 0.1) * 1.0;
+                } else if (fpr <= 0.6) {
+                    tpr = 0.85 + (fpr - 0.3) * 0.4;
+                } else {
+                    tpr = 0.97 + (fpr - 0.6) * 0.075;
+                }
+                
+                tpr = Math.min(tpr, 1.0); // Cap at 1.0
+                
+                rocData.push(tpr);
+                diagonalData.push(fpr);
+            }
+            return { rocData, diagonalData };
+        };
+
+        const { rocData, diagonalData } = generateROCData();
+        const labels = [];
+        for (let i = 0; i <= 100; i++) {
+            labels.push((i / 100).toFixed(2));
+        }
+
+        new Chart(rocCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'ROC (area = 0.818)',
+                    data: rocData,
+                    borderColor: '#dc2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }, {
+                    label: 'Random Classifier',
+                    data: diagonalData,
+                    borderColor: '#1e3a8a',
+                    borderDash: [8, 8],
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Receiver Operating Characteristic (ROC) Curve',
+                        font: { size: 18, weight: 'bold' },
+                        color: '#1e3a8a',
+                        padding: 20
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 14 },
+                            color: '#374151',
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'white',
+                        titleColor: '#374151',
+                        bodyColor: '#374151',
+                        borderColor: '#d1d5db',
+                        borderWidth: 1,
+                        callbacks: {
+                            title: function(context) {
+                                return `FPR: ${context[0].label}`;
+                            },
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return `TPR: ${context.parsed.y.toFixed(3)}`;
+                                } else {
+                                    return `Random: ${context.parsed.y.toFixed(3)}`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'False Positive Rate',
+                            font: { weight: 'bold', size: 14 },
+                            color: '#374151'
+                        },
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            callback: function(value, index) {
+                                return (value / 100).toFixed(1);
+                            },
+                            font: { size: 12 },
+                            color: '#374151'
+                        },
+                        grid: {
+                            color: '#f0f0f0',
+                            lineWidth: 1
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'True Positive Rate',
+                            font: { weight: 'bold', size: 14 },
+                            color: '#374151'
+                        },
+                        min: 0,
+                        max: 1,
+                        ticks: {
+                            stepSize: 0.2,
+                            callback: function(value) {
+                                return value.toFixed(1);
+                            },
+                            font: { size: 12 },
+                            color: '#374151'
+                        },
+                        grid: {
+                            color: '#f0f0f0',
+                            lineWidth: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Feature Importance Chart
+        const featureCtx = document.getElementById('featureChart').getContext('2d');
+        
+        const featureData = [
+            { feature: 'purchase_lead', importance: 0.151414 },
+            { feature: 'flight_duration', importance: 0.147527 },
+            { feature: 'length_of_stay', importance: 0.135622 },
+            { feature: 'wants_preferred_seat', importance: 0.112685 },
+            { feature: 'flight_hour', importance: 0.094073 },
+            { feature: 'wants_extra_baggage', importance: 0.091889 },
+            { feature: 'wants_in_flight_meals', importance: 0.074198 },
+            { feature: 'num_passengers', importance: 0.062069 },
+            { feature: 'flight_day', importance: 0.054456 },
+            { feature: 'booking_origin', importance: 0.049722 },
+            { feature: 'booking_continent', importance: 0.007551 },
+            { feature: 'booking_continent_AS', importance: 0.0066 },
+            { feature: 'sales_channel', importance: 0.005848 },
+            { feature: 'booking_continent_OC', importance: 0.004273 },
+            { feature: 'trip_type', importance: 0.00092 }
+        ];
+
+        new Chart(featureCtx, {
+            type: 'bar',
+            data: {
+                labels: featureData.map(d => d.feature.replace(/_/g, ' ').replace('wants ', '')),
+                datasets: [{
+                    label: 'Feature Importance',
+                    data: featureData.map(d => d.importance),
+                    backgroundColor: '#1e3a8a',
+                    borderColor: '#dc2626',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Feature Importance Analysis',
+                        font: { size: 18, weight: 'bold' },
+                        color: '#1e3a8a'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Feature Importance Score',
+                            font: { weight: 'bold', size: 14 },
+                            color: '#374151'
+                        },
+                        min: 0,
+                        max: 0.16,
+                        grid: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Features',
+                            font: { weight: 'bold', size: 14 },
+                            color: '#374151'
+                        },
+                        ticks: {
+                            font: { size: 12 },
+                            color: '#374151'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Navigation functionality
+        function scrollToSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            slides[index].scrollIntoView({ behavior: 'smooth' });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            navDots[index].classList.add('active');
+        }
+
+        // Update navigation on scroll
+        window.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = 0;
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    current = index;
+                }
+            });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            navDots[current].classList.add('active');
+        });
+    </script>
+</body>
+</html>
